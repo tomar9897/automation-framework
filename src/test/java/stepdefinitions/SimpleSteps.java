@@ -1,18 +1,19 @@
 package stepdefinitions;
 
 import io.cucumber.java.en.*;
+import constants.locators;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import utils.DriverManager;
 
-public class SimpleSteps {
+public class SimpleSteps extends DriverManager {
     
-    WebDriver driver;
+    public WebDriver driver = DriverManager.getDriver();
     
     @Given("I open Google homepage")
     public void i_open_google_homepage() {
-        driver = DriverManager.getDriver();
+       // driver = DriverManager.getDriver();
         driver.get("https://www.google.com");
         System.out.println("Opened Google");
     }
@@ -33,5 +34,20 @@ public class SimpleSteps {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+    }
+    
+    @Given("Launch the demo QA")
+    public void launch() {
+    	try {
+    		
+    		driver.get(locators.url);
+    		Wait("5");
+    		
+    	}catch(Exception e) {
+    		driver.get(locators.url);
+    		Wait("5");
+    	}finally {
+    		System.out.println("Some issue in opening the browser");
+    	}
     }
 }

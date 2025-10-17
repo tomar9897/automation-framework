@@ -24,4 +24,12 @@ public class DriverManager {
             driver = null;
         }
     }
+    
+    public static void Wait(String wait) {
+    	try {
+            Thread.sleep(Integer.valueOf(wait) * 1000);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
 }
