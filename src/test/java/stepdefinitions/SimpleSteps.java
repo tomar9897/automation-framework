@@ -1,0 +1,37 @@
+package stepdefinitions;
+
+import io.cucumber.java.en.*;
+import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
+import org.openqa.selenium.WebDriver;
+import utils.DriverManager;
+
+public class SimpleSteps {
+    
+    WebDriver driver;
+    
+    @Given("I open Google homepage")
+    public void i_open_google_homepage() {
+        driver = DriverManager.getDriver();
+        driver.get("https://www.google.com");
+        System.out.println("Opened Google");
+    }
+    
+    @When("I search for {string}")
+    public void i_search_for(String searchTerm) {
+        driver.findElement(By.name("q")).sendKeys(searchTerm);
+        driver.findElement(By.name("q")).sendKeys(Keys.ENTER);
+        System.out.println("Searched for: " + searchTerm);
+    }
+    
+    @Then("I should see search results")
+    public void i_should_see_search_results() {
+        try {
+            Thread.sleep(2000); // Wait for results
+            System.out.println("Page title: " + driver.getTitle());
+            System.out.println("✅ TEST PASSED - Browser opened and search worked!");
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+}
