@@ -50,4 +50,25 @@ public class SimpleSteps extends DriverManager {
     		System.out.println("Some issue in opening the browser");
     	}
     }
+    
+    @Then("Click {string}")
+    public void click(String locator) {
+    	try {
+    		waitforElement(locator);
+    		driver.findElement(By.xpath(locator)).click();
+    	}catch(Exception e) {
+    		waitforclickable(locator);
+    		driver.findElement(By.xpath(locator)).click();
+    	}
+    }
+    
+    @Then("wait for {string} seconds")
+    public void wait(String str) {
+    	Wait(str);
+    }
+    
+    @When("user perform the following actions {string}")
+    public void actions(String locate) {
+    	
+    }
 }

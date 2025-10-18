@@ -8,3 +8,9 @@ Feature: Simple Test
     @tag2
   Scenario: Open DemoQA
     Given Launch the demo QA
+    And wait for "10" seconds
+    Then Click "//button[@id='windowButton']"
+    When user perform the following actions "UI"
+     |Locator     |  valuetobeupdated    | action |
+     |
+    
