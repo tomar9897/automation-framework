@@ -9,8 +9,13 @@ Feature: Simple Test
   Scenario: Open DemoQA
     Given Launch the demo QA
     And wait for "10" seconds
-    Then Click "//button[@id='windowButton']"
-    When user perform the following actions "UI"
-     |Locator     |  valuetobeupdated    | action |
-     |
+   # Then Click "//button[@id='windowButton']"
+    When user perform the following actions
+     | Locator     |  valuetobeupdated    | action          |
+     | forms       | Forms                | scrolltoelement |
+     | forms       | Forms                | click           |
+     | practiceform|                      | click           |
+   And wait for "10" seconds
+   Given Fill and submit the practice form
+     
     
