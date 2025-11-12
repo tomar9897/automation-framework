@@ -1,6 +1,11 @@
 package utils;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
+
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.*;
 import org.openqa.selenium.WebDriver;
@@ -30,12 +35,19 @@ public class DriverManager {
         }
     }
     
-    public static void Wait(String wait) {
+    public static void waitToLoadCompletely() {
+    	new WebDriverWait(driver, Duration.ofSeconds(15)).until(driver -> ((JavascriptExecutor)driver).executeScript("return document.readyState").equals("complete"));
+    }
+    
+    public static void Wait(String wait) throws MalformedURLException, IOException {
     	try {
             Thread.sleep(Integer.valueOf(wait) * 1000);
+            
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
+    	
+    	
     }
     
     public static void waitforElement(String locator) {

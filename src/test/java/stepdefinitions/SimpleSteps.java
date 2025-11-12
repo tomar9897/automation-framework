@@ -1,17 +1,38 @@
 package stepdefinitions;
 
 import io.cucumber.datatable.DataTable;
+import org.openqa.selenium.support.ui.FluentWait;
+import org.openqa.selenium.support.ui.Wait;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
 import io.cucumber.java.en.*;
 import constants.locators;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+
+import dev.failsafe.internal.util.Assert;
+
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.lang.reflect.Field;
+import java.text.SimpleDateFormat;
+import java.time.Duration;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.TakesScreenshot;
+import org.apache.commons.io.FileUtils;
+import java.io.File;
+import java.io.IOException;
+import java.util.NoSuchElementException;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.Keys;
+import org.openqa.selenium.OutputType;
+import static org.junit.jupiter.api.Assertions.*;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -83,6 +104,31 @@ public class SimpleSteps extends DriverManager {
                         ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", scrollElem);
                         break;
 
+                    case "refresh":
+                    	driver.navigate().refresh();
+                    	break;
+                    	
+                    case "forward":
+                    	driver.navigate().forward();
+                    	
+                    case "backward":
+                    	driver.navigate().back();
+                    	
+                    case "hover":
+                    	WebElement ele = driver.findElement(By.xpath(updatedLocator));
+                    	act.moveToElement(ele).perform();
+                    	
+                    case "isVisible":
+                    	try {
+                    		driver.findElement(By.xpath(updatedLocator)).isDisplayed();
+                    		assertTrue(driver.findElement(By.xpath(updatedLocator)).isDisplayed(), "Element visible");
+                    	}catch(Exception e) {
+                    		DriverManager.waitforElement(updatedLocator);
+                    		assertTrue(driver.findElement(By.xpath(updatedLocator)).isDisplayed(), "Element visible");
+                    	}
+                    	
+                    	
+                    
                     default:
                         System.out.println("Unknown action: " + action);
                 }
@@ -174,7 +220,7 @@ public class SimpleSteps extends DriverManager {
     }
     
     @Given("Launch the demo QA")
-    public void launch() {
+    public void launch() throws MalformedURLException, IOException {
     	try {
     		
     		driver.get(locators.url);
@@ -195,13 +241,142 @@ public class SimpleSteps extends DriverManager {
     		driver.findElement(By.xpath(locator)).click();
     	}catch(Exception e) {
     		waitforclickable(locator);
-    		driver.findElement(By.xpath(locator)).click();
+    		WebElement ele = driver.findElement(By.xpath(locator));
+    		JavascriptExecutor js = (JavascriptExecutor) driver;
+    		js.executeScript("arguments[0].click()", ele);
+    	//	driver.findElement(By.xpath(locator)).click();
     	}
     }
     
     @Then("wait for {string} seconds")
-    public void wait(String str) {
+    public void wait(String str) throws MalformedURLException, IOException {
     	Wait(str);
+    }
+    
+    public void fluentWait(long waits, long polling, Class<? extends Throwable>... exceptionType) {
+    	FluentWait<WebDriver> wait = new FluentWait<>(driver).withTimeout(Duration.ofSeconds(waits));
+    	if (polling > 0) {
+            wait.pollingEvery(Duration.ofSeconds(polling));
+        }
+    	if(exceptionType!=null && exceptionType.length>0) {
+    		for(Class<? extends Throwable> ex : exceptionType) {
+    			wait.ignoring(ex);
+    		}
+    	}
+    }
+    
+    public void waitfortexttoVisible(WebElement ele, String text) {
+    	WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+    	wait.until(ExpectedConditions.textToBePresentInElement(ele, text));
+    }
+    
+    public void screenshot(String fileName) {
+    	String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        
+        String filePath = "src/test/resources/Screenshots" + fileName + "_" + timestamp + ".png";
+    	File src = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
+    	File dest = new File(filePath);
+    	try {
+            
+            
+            FileUtils.copyFile(src, dest);
+            System.out.println("Screenshot saved at: " + dest.getAbsolutePath());
+        } catch (IOException e) {
+            System.out.println("Failed to save screenshot: " + e.getMessage());
+        }
+    	
+    	
+    }
+    
+    public void screenshot(String locator, String fileName) {
+    	String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        
+        String filePath = "src/test/resources/Screenshots" +"_+"+fileName+ "_" + timestamp + ".png";
+    	File src = driver.findElement(By.xpath(locator)).getScreenshotAs(OutputType.FILE);
+    	File dest = new File(filePath);
+    	try {
+            
+            
+            FileUtils.copyFile(src, dest);
+            System.out.println("Screenshot saved at: " + dest.getAbsolutePath());
+        } catch (IOException e) {
+            System.out.println("Failed to save screenshot: " + e.getMessage());
+        }
+    	
+    	
+    }
+    
+    public void screenshot() {
+    	String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        
+        String filePath = "src/test/resources/Screenshots"  + "_" + timestamp + ".png";
+    	File src = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
+    	File dest = new File(filePath);
+    	try {
+            
+            
+            FileUtils.copyFile(src, dest);
+            System.out.println("Screenshot saved at: " + dest.getAbsolutePath());
+        } catch (IOException e) {
+            System.out.println("Failed to save screenshot: " + e.getMessage());
+        }
+    	
+    	
+    }
+    
+    
+    
+
+        public static boolean isLinkValid(String urlString) {
+            try {
+                if (urlString == null || urlString.trim().isEmpty()) {
+                    System.out.println("Empty or null URL");
+                    return false;
+                }
+
+
+                HttpURLConnection connection = (HttpURLConnection) new URL(urlString).openConnection();
+                connection.setConnectTimeout(5000);
+                connection.setReadTimeout(5000);
+                connection.setInstanceFollowRedirects(true);
+
+                // HEAD first (faster)
+                connection.setRequestMethod("HEAD");
+                int responseCode = connection.getResponseCode();
+
+                // if HEAD not supported, fallback to GET
+                if (responseCode == HttpURLConnection.HTTP_BAD_METHOD || responseCode == HttpURLConnection.HTTP_NOT_IMPLEMENTED) {
+
+                    connection.disconnect();
+                    connection = (HttpURLConnection) new URL(urlString).openConnection();
+                    connection.setRequestMethod("GET");
+                    connection.setConnectTimeout(5000);
+                    connection.setReadTimeout(5000);
+                    connection.connect();
+                    responseCode = connection.getResponseCode();
+                }
+
+                // response code < 400 , link is valid
+                boolean isValid = responseCode < 400;
+                if (!isValid) {
+                    System.out.println("Broken link: " + urlString + " --> HTTP " + responseCode);
+                }
+
+                connection.disconnect();
+                return isValid;
+
+            } catch (Exception e) {
+                System.out.println("Exception for URL: " + urlString + " --> " + e.getMessage());
+                return false;
+            }
+        }
+    
+
+    
+    @Then("get the title")
+    public void fun() {
+    	String title = driver.getTitle();
+    	System.out.println("title is -> "+title);
     }
     
     @When("user perform the following actions {string}")
