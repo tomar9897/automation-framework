@@ -323,6 +323,14 @@ public class SimpleSteps extends DriverManager {
     	
     	
     }
+    @Then("I validate page title contains {string}")
+    public void validate_title(String expectedText) {
+        String actualTitle = driver.getTitle();
+        System.out.println("Actual Title: " + actualTitle);
+
+        assertTrue(actualTitle.contains(expectedText),
+                "❌ Title validation failed. Expected: " + expectedText);
+    }
     
     
     
