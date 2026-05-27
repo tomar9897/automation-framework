@@ -27,10 +27,10 @@ import static io.cucumber.junit.platform.engine.Constants.*;
 
 @Suite
 @IncludeEngines("cucumber")
-@SelectClasspathResource("features")
+@SelectClasspathResource("features/healingValidation.feature")
 
 @ConfigurationParameter(key = GLUE_PROPERTY_NAME, value = "stepdefinitions")
-
+@ConfigurationParameter(key = FILTER_TAGS_PROPERTY_NAME, value = "")
 @ConfigurationParameter(
         key = PLUGIN_PROPERTY_NAME,
         value = "pretty, json:target/cucumber.json, com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter:"

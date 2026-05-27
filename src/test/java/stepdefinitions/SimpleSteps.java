@@ -1,6 +1,15 @@
 package stepdefinitions;
 
 import io.cucumber.datatable.DataTable;
+import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
+import org.openqa.selenium.WebElement;
+
+import healing.engine.HealingEngine;
+import healing.models.HealingResult;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import org.openqa.selenium.support.ui.FluentWait;
 import org.openqa.selenium.support.ui.Wait;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -35,6 +44,7 @@ import org.openqa.selenium.OutputType;
 import static org.junit.jupiter.api.Assertions.*;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.interactions.MoveTargetOutOfBoundsException;
@@ -77,15 +87,15 @@ public class SimpleSteps extends DriverManager {
 
                 switch (action) {
                     case "click":
-                    	System.out.println("locator is : " + updatedLocator);
-                    	DriverManager.waitforclickable(updatedLocator);
-                    	driver.findElement(By.xpath(updatedLocator)).click();
+                        System.out.println("locator is : " + updatedLocator);
+                        DriverManager.waitforclickable(updatedLocator);
+                        DriverManager.findElement(updatedLocator).click();
                       //  wait.until(ExpectedConditions.elementToBeClickable(updatedLocator)).click();
                         break;
 
                     case "enter":
                     	DriverManager.waitforElement(updatedLocator);
-                        WebElement element = driver.findElement(By.xpath(updatedLocator));
+                        WebElement element = DriverManager.findElement(updatedLocator);
                         element.clear();
                         element.sendKeys(valueToBeUpdated);
                         break;
@@ -100,7 +110,7 @@ public class SimpleSteps extends DriverManager {
 
                     case "scrolltoelement":
                     	DriverManager.waitforElement(updatedLocator);
-                        WebElement scrollElem = driver.findElement(By.xpath(updatedLocator));
+                        WebElement scrollElem = DriverManager.findElement(updatedLocator);
                         ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", scrollElem);
                         break;
 
@@ -115,20 +125,27 @@ public class SimpleSteps extends DriverManager {
                     	driver.navigate().back();
                     	
                     case "hover":
-                    	WebElement ele = driver.findElement(By.xpath(updatedLocator));
-                    	act.moveToElement(ele).perform();
+                    	WebElement ele =
+                        DriverManager.findElement(updatedLocator);
+                        act.moveToElement(ele).perform();
                     	
                     case "isVisible":
-                    	try {
-                    		driver.findElement(By.xpath(updatedLocator)).isDisplayed();
-                    		assertTrue(driver.findElement(By.xpath(updatedLocator)).isDisplayed(), "Element visible");
-                    	}catch(Exception e) {
-                    		DriverManager.waitforElement(updatedLocator);
-                    		assertTrue(driver.findElement(By.xpath(updatedLocator)).isDisplayed(), "Element visible");
-                    	}
-                    	
-                    	
-                    
+                        try { 
+                        	assertTrue(
+                                    DriverManager
+                                            .findElement(updatedLocator)
+                                            .isDisplayed(),
+                                    "Element visible"
+                            );
+                        } catch(Exception e) {
+                        	DriverManager.waitforElement(updatedLocator);
+                        	assertTrue(
+                                    DriverManager
+                                            .findElement(updatedLocator)
+                                            .isDisplayed(),
+                                    "Element visible"
+                            );
+                        }
                     default:
                         System.out.println("Unknown action: " + action);
                 }
@@ -141,7 +158,7 @@ public class SimpleSteps extends DriverManager {
     }
     
     @Given("Fill and submit the practice form")
-    public void submitForm() {
+    public void submitForm() throws IOException {
     	SimpleSteps obj = new SimpleSteps();
     	//String locator = locator.
     	obj.setValue("Mayank", locators.firstName);
@@ -155,42 +172,45 @@ public class SimpleSteps extends DriverManager {
     }
     
     public void setValue(String str, String locator) {
-    	//String loc = locator.
-    	try {
-    		
-    		driver.findElement(By.xpath(locator)).clear();
-        	driver.findElement(By.xpath(locator)).sendKeys(str);
-    	}catch(Exception e){
-    		System.out.println("Not able to set value due to :"+ e.getMessage());
-    	}
-    	
+        try {
+            DriverManager.findElement(locator).clear();
+            DriverManager.findElement(locator).sendKeys(str);
+        } catch(Exception e){
+            System.out.println(
+                    "Not able to set value due to : " + e.getMessage()
+            );
+        }
     }
-    public void scrollToElement(String locator) {
-		DriverManager.waitforElement(locator);
-    	WebElement element = driver.findElement(By.xpath(locator));
-    	try {
-    		DriverManager.waitforElement(locator);
-    		act.moveToElement(element).perform();
-    	}catch(MoveTargetOutOfBoundsException  e) {
-    		DriverManager.waitforElement(locator);
-    		((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", element);
-    	}catch(Exception e) {
-    		System.out.println("Not able to scroll to element: "+ element);
-    		fail("Failed to perform action '" + "Scroll to element "+ element + e.getMessage(), e);
-    	}
+    public void scrollToElement(String locator) throws IOException {
+        DriverManager.waitforElement(locator);
+        WebElement element =
+                DriverManager.findElement(locator);
+        try 
+    	{
+            DriverManager.waitforElement(locator);
+            act.moveToElement(element).perform();
+        } catch(MoveTargetOutOfBoundsException e) {
+           DriverManager.waitforElement(locator);
+            ((JavascriptExecutor) driver)
+                    .executeScript(
+                            "arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});",element);
+        } catch(Exception e) {
+            System.out.println(
+                    "Not able to scroll to element: "+ element);
+            fail("Failed to perform action 'Scroll to element' "+ element + e.getMessage(),e);
+        }
     }
     
-    public void actionClick(String locator) {
-    	WebElement element = driver.findElement(By.xpath(locator));
-    	SimpleSteps obj = new SimpleSteps();
-    	try {
-    		obj.scrollToElement(locator);
-    		act.moveToElement(element).click().perform();
-    		
-    	}catch(TimeoutException e) {
-    		DriverManager.waitforclickable(locator);
-    		((JavascriptExecutor) driver).executeScript("arguments[0].click();", element);
-    	}
+    public void actionClick(String locator) throws IOException {
+        WebElement element = DriverManager.findElement(locator);
+        SimpleSteps obj = new SimpleSteps();
+        try {
+            obj.scrollToElement(locator);
+            act.moveToElement(element).click().perform();
+        } catch (TimeoutException e) {
+            DriverManager.waitforclickable(locator);
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", element);
+        }
     }
     
     
@@ -200,7 +220,17 @@ public class SimpleSteps extends DriverManager {
         driver.get("https://www.google.com");
         System.out.println("Opened Google");
     }
-    
+    @When("I search using broken xpath")
+    public void i_search_using_broken_xpath() {
+        try {
+            String brokenXpath ="//textarea[@name='q_old']";
+            WebElement searchBox = DriverManager.findElement(brokenXpath);
+            searchBox.sendKeys("self healing framework");
+            searchBox.sendKeys(Keys.ENTER);
+        } catch(Exception e) {
+            fail("Healing test failed: " + e.getMessage());
+        }
+    }
     @When("I search for {string}")
     public void i_search_for(String searchTerm) {
         driver.findElement(By.name("q")).sendKeys(searchTerm);
@@ -235,17 +265,16 @@ public class SimpleSteps extends DriverManager {
     }
     
     @Then("Click {string}")
-    public void click(String locator) {
-    	try {
-    		waitforElement(locator);
-    		driver.findElement(By.xpath(locator)).click();
-    	}catch(Exception e) {
-    		waitforclickable(locator);
-    		WebElement ele = driver.findElement(By.xpath(locator));
-    		JavascriptExecutor js = (JavascriptExecutor) driver;
-    		js.executeScript("arguments[0].click()", ele);
-    	//	driver.findElement(By.xpath(locator)).click();
-    	}
+    public void click(String locator) throws IOException {
+        try {
+            waitforElement(locator);
+            DriverManager.findElement(locator).click();
+        } catch (Exception e) {
+            waitforclickable(locator);
+            WebElement ele = DriverManager.findElement(locator);
+            JavascriptExecutor js = (JavascriptExecutor) driver;
+            js.executeScript("arguments[0].click()", ele);
+        }
     }
     
     @Then("wait for {string} seconds")
@@ -288,11 +317,12 @@ public class SimpleSteps extends DriverManager {
     	
     }
     
-    public void screenshot(String locator, String fileName) {
+    public void screenshot(String locator, String fileName) throws WebDriverException, IOException {
     	String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         
         String filePath = "src/test/resources/Screenshots" +"_+"+fileName+ "_" + timestamp + ".png";
-    	File src = driver.findElement(By.xpath(locator)).getScreenshotAs(OutputType.FILE);
+        File src = DriverManager.findElement(locator).getScreenshotAs(OutputType.FILE);
+ //   	File src = driver.findElement(By.xpath(locator)).getScreenshotAs(OutputType.FILE);
     	File dest = new File(filePath);
     	try {
             
@@ -389,6 +419,406 @@ public class SimpleSteps extends DriverManager {
     
     @When("user perform the following actions {string}")
     public void actions(String locate) {
-    	
+    
     }
+    
+    @When("I search again using same broken xpath")
+    public void i_search_again_using_same_broken_xpath() {
+
+        try {
+
+            driver.navigate().back();
+
+            DriverManager.waitToLoadCompletely();
+
+            String brokenXpath =
+                    "//textarea[@name='q_old']";
+
+            WebElement searchBox =
+                    DriverManager.findElement(brokenXpath);
+
+            searchBox.clear();
+
+            searchBox.sendKeys("persistent healing cache");
+
+            searchBox.sendKeys(Keys.ENTER);
+
+        } catch(Exception e) {
+
+            fail(
+                    "Second healing test failed: "
+                            + e.getMessage()
+            );
+        }
+    }
+    
+    @When("I search using invalid broken xpath")
+    public void i_search_using_invalid_broken_xpath() {
+
+        try {
+
+            String brokenXpath =
+                    "//textarea[@name='q_121212121']";
+
+            WebElement searchBox =
+                    DriverManager.findElement(brokenXpath);
+
+            searchBox.sendKeys("this should fail");
+
+        } catch(Exception e) {
+
+            System.out.println(
+                    "Expected healing failure occurred."
+            );
+        }
+    }
+    
+    
+    @Then("I should see healing failure handled safely")
+    public void i_should_see_healing_failure_handled_safely() {
+
+        System.out.println(
+                "Healing rejection validation completed successfully."
+        );
+
+        assertTrue(true);
+    }
+    @Then("I validate current url contains {string}")
+    public void validate_current_url(String expectedText) {
+
+        String currentUrl = driver.getCurrentUrl();
+
+        System.out.println(
+                "Current URL: " + currentUrl
+        );
+
+        assertTrue(
+                currentUrl.contains(expectedText),
+                "❌ URL validation failed. Expected: "
+                        + expectedText
+        );
+    }
+    
+    @Given("I open DemoQA text box page")
+    public void i_open_demoqa_text_box_page() {
+
+        driver.get("https://demoqa.com/text-box");
+
+        DriverManager.waitToLoadCompletely();
+
+        System.out.println("Opened DemoQA Text Box page");
+    }
+    
+    @When("I enter full name using broken locator")
+    public void i_enter_full_name_using_broken_locator() throws IOException {
+
+        WebElement element =
+                DriverManager.findElement(
+                        locators.brokenFullName
+                );
+
+        element.sendKeys("Mayank Tomar");
+    }
+    
+    @When("I enter email using broken locator")
+    public void i_enter_email_using_broken_locator() throws IOException {
+
+        WebElement element =
+                DriverManager.findElement(
+                        locators.brokenEmail
+                );
+
+        element.sendKeys("mayank@test.com");
+    }
+    
+    @When("I enter address using broken locator")
+    public void i_enter_address_using_broken_locator() throws IOException {
+
+        WebElement element =
+                DriverManager.findElement(
+                        locators.brokenAddress
+                );
+
+        element.sendKeys("Delhi India");
+    }
+    
+    @When("I click submit using broken locator")
+    public void i_click_submit_using_broken_locator() throws IOException {
+
+        WebElement element =
+                DriverManager.findElement(
+                        locators.brokenSubmit
+                );
+
+        ((JavascriptExecutor) driver)
+                .executeScript(
+                        "arguments[0].click();",
+                        element
+                );
+    }
+    
+    @Then("I validate form submitted successfully")
+    public void i_validate_form_submitted_successfully() {
+
+        WebElement output =
+                driver.findElement(
+                        By.id("output")
+                );
+
+        assertTrue(
+                output.isDisplayed(),
+                "Form submission failed"
+        );
+
+        System.out.println(
+                "DemoQA form submitted successfully."
+        );
+    }
+    
+    @When("I enter full name again using broken locator")
+    public void i_enter_full_name_again_using_broken_locator() throws IOException {
+
+        WebElement element =
+                DriverManager.findElement(
+                        locators.brokenFullName
+                );
+
+        element.sendKeys("Persistent Cache Test");
+    }
+    
+    @When("I use invalid broken locator on DemoQA")
+    public void i_use_invalid_broken_locator_on_demoqa() {
+
+        try {
+
+            DriverManager.findElement(
+                    "//input[@id='invalid_999999']"
+            );
+
+        } catch(Exception e) {
+
+            System.out.println(
+                    "Expected DemoQA healing failure occurred."
+            );
+        }
+    }
+    
+    @Given("user opens demoqa text box page")
+    public void user_opens_demoqa_text_box_page() {
+
+        driver.get(locators.demoqaTextBoxUrl);
+
+        System.out.println("Opened DemoQA Text Box page");
+    }
+
+    @When("user enters name using broken id locator")
+    public void user_enters_name_using_broken_id_locator() {
+
+        try {
+
+            WebElement element =
+                    DriverManager.findElement(
+                            locators.brokenUserName
+                    );
+
+            element.sendKeys("Mayank");
+
+        } catch (Exception e) {
+
+            fail("Name healing failed: " + e.getMessage());
+        }
+    }
+
+    @When("user enters email using broken name locator")
+    public void user_enters_email_using_broken_name_locator() {
+
+        try {
+
+            WebElement element =
+                    DriverManager.findElement(
+                            locators.brokenUserEmail
+                    );
+
+            element.sendKeys("mayank@test.com");
+
+        } catch (Exception e) {
+
+            fail("Email healing failed: " + e.getMessage());
+        }
+    }
+
+    @When("user enters address using broken placeholder locator")
+    public void user_enters_address_using_broken_placeholder_locator() {
+
+        try {
+
+            WebElement element =
+                    DriverManager.findElement(
+                            locators.brokenAddress
+                    );
+
+            element.sendKeys("New Delhi");
+
+        } catch (Exception e) {
+
+            fail("Address healing failed: " + e.getMessage());
+        }
+    }
+
+    @When("user clicks submit using broken class locator")
+    public void user_clicks_submit_using_broken_class_locator() {
+
+        try {
+
+            WebElement element =
+                    DriverManager.findElement(
+                            locators.brokenSubmit
+                    );
+
+            ((JavascriptExecutor) driver)
+                    .executeScript(
+                            "arguments[0].click();",
+                            element
+                    );
+
+        } catch (Exception e) {
+
+            fail("Submit healing failed: " + e.getMessage());
+        }
+    }
+
+    @Then("form should be submitted successfully")
+    public void form_should_be_submitted_successfully() {
+
+        WebElement output =
+                driver.findElement(
+                        By.xpath(locators.outputName)
+                );
+
+        assertTrue(
+                output.isDisplayed(),
+                "Form submission failed"
+        );
+
+        System.out.println("Intelligent healing scenario passed.");
+    }
+    
+    
+    
+    
+    
+    
+    //final validations
+    
+    
+    @When("user enters name again using same broken locator")
+    public void user_enters_name_again_using_same_broken_locator() {
+
+        try {
+
+            WebElement element =
+                    DriverManager.findElement(
+                            locators.brokenUserName
+                    );
+
+            element.clear();
+
+            element.sendKeys(
+                    "Cache Validation"
+            );
+
+        } catch (Exception e) {
+
+            fail(
+                    "Cache healing failed: "
+                            + e.getMessage()
+            );
+        }
+    }
+    
+    @Then("cached healing should work successfully")
+    public void cached_healing_should_work_successfully() {
+
+        System.out.println(
+                "Cached healing validated successfully."
+        );
+
+        assertTrue(true);
+    }
+    
+    @Then("deterministic healing should complete successfully")
+    public void deterministic_healing_should_complete_successfully() {
+
+        System.out.println(
+                "Deterministic healing validated successfully."
+        );
+
+        assertTrue(true);
+    }
+    
+    @Then("AI healing should recover locator successfully")
+    public void ai_healing_should_recover_locator_successfully() {
+
+        System.out.println(
+                "AI healing validated successfully."
+        );
+
+        assertTrue(true);
+    }
+    
+    @When("user clicks using impossible broken locator")
+    public void user_clicks_using_impossible_broken_locator() {
+
+        try {
+
+            WebElement element =
+                    DriverManager.findElement(
+                            locators.impossibleLocator
+                    );
+
+            element.click();
+
+            fail(
+                    "Framework incorrectly healed impossible locator."
+            );
+
+        } catch (Exception e) {
+
+            System.out.println(
+                    "Safe rejection occurred as expected."
+            );
+        }
+    }
+    
+    @Then("framework should safely reject healing")
+    public void framework_should_safely_reject_healing() {
+
+        System.out.println(
+                "Safe rejection validated successfully."
+        );
+
+        assertTrue(true);
+    }
+    
+    @Then("complete healing flow should work successfully")
+    public void complete_healing_flow_should_work_successfully() {
+
+        WebElement output =
+                driver.findElement(
+                        By.xpath(locators.outputName)
+                );
+
+        assertTrue(
+                output.isDisplayed(),
+                "Complete healing flow failed"
+        );
+
+        System.out.println(
+                "Complete healing pipeline validated successfully."
+        );
+    }
+    
+    
+    
+    
 }

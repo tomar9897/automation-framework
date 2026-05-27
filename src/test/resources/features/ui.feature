@@ -3,7 +3,7 @@ Feature: Basic UI Validation
   @tag3
   Scenario: Verify Google Search Works
     Given I open Google homepage
-    When I search for "selenium"
+    When I search using broken xpath
     Then I should see search results
 
   @tag3

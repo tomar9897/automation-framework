@@ -23,4 +23,78 @@ public class locators {
 	public static final String city = "(//div[normalize-space(@class)='css-tlfecz-indicatorContainer'])[2]";
 	public static final String submit = "//*[@id='submit']";
 
+	public static String brokenFullName ="//input[@id='userName_old']";
+
+	public static String brokenEmail ="//input[@id='userEmail_old']";
+
+	//public static String brokenAddress ="//textarea[@id='currentAddress_old']";
+
+	//public static String brokenSubmit ="//button[@id='submit_old']";
+	
+	
+	public static String demoqaTextBoxUrl =
+	        "https://demoqa.com/text-box";
+
+	public static String userName =
+	        "//input[@id='userName']";
+
+	public static String userEmail =
+	        "//input[@id='userEmail']";
+
+	public static String currentAddress =
+	        "//textarea[@id='currentAddress']";
+
+	public static String submitButton =
+	        "//button[@id='submit']";
+
+	public static String outputName =
+	        "//p[@id='name']";
+	
+//	public static String brokenUserName =
+//	        "//input[@id='userName_old']";
+//
+//	public static String brokenUserEmail =
+//	        "//input[@name='email_old']";
+//
+//	public static String brokenAddress =
+//	        "//textarea[@placeholder='Current Address Old']";
+//
+//	public static String brokenSubmit =
+//	        "//button[@class='btn_old']";
+	
+	
+	
+	
+	
+	//final validations
+	public static String validUserName =
+	        "//input[@id='userName']";
+
+	public static String validUserEmail =
+	        "//input[@id='userEmail']";
+
+	public static String validAddress =
+	        "//textarea[@id='currentAddress']";
+
+	public static String validSubmit =
+	        "//button[@id='submit']";
+	
+	public static String brokenUserName =
+	        "//input[@id='userName_old']";
+
+	public static String brokenUserEmail =
+	        "//input[@name='email_old']";
+
+	public static String brokenAddress =
+	        "//textarea[@placeholder='Current Address Old']";
+
+	public static String brokenSubmit =
+	        "//button[@class='btn_old']";
+
+	public static String impossibleLocator =
+	        "//button[@class='random_999999']";
+	
+	
+	
+	
 }
