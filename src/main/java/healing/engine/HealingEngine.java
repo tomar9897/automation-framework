@@ -97,12 +97,43 @@ public class HealingEngine {
             HealingAnalyticsManager.recordFailure();
             String aiLocator = AISuggestionEngine.getSuggestedLocator(failedLocator.toString(), DOMSnapshotBuilder.buildSnapshot(driver));
             if (aiLocator != null) {
-                try {
-                    WebElement aiElement = driver.findElement(By.xpath(aiLocator));
-                    System.out.println("AI Suggested Locator Success -> " + aiLocator);
-                    HealingExtentReporter.logAIHealing(failedLocator.toString(), aiLocator);
-                    return aiElement;
-                } catch (Exception ignored) {}
+
+                if (aiLocator.equals("//button")
+                        || aiLocator.equals("//div")
+                        || aiLocator.equals("//span")
+                        || aiLocator.equals("//input")
+                        || aiLocator.equals("//textarea")
+                        || aiLocator.equals("//nav/button")) {
+
+                    System.out.println(
+                            "Rejected generic AI locator: "
+                                    + aiLocator
+                    );
+
+                } else {
+
+                    try {
+
+                        WebElement aiElement =
+                                driver.findElement(
+                                        By.xpath(aiLocator)
+                                );
+
+                        System.out.println(
+                                "AI Suggested Locator Success -> "
+                                        + aiLocator
+                        );
+
+                        HealingExtentReporter.logAIHealing(
+                                failedLocator.toString(),
+                                aiLocator
+                        );
+
+                        return aiElement;
+
+                    } catch (Exception ignored) {
+                    }
+                }
             }
             throw new NoSuchElementException("No reliable healing candidate found for locator: " + failedLocator);
         }
